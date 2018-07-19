@@ -1,88 +1,38 @@
-# docker-stacks
+[![Google Group](https://img.shields.io/badge/-Google%20Group-lightgrey.svg)](https://groups.google.com/forum/#!forum/jupyter)
+![Read the Docs](https://img.shields.io/readthedocs/jupyter-docker-stacks.svg)
+[![](https://images.microbadger.com/badges/version/jupyter/base-notebook.svg)](https://microbadger.com/images/jupyter/base-notebook "Get your own version badge on microbadger.com")
 
-[![Build Status](https://travis-ci.org/jupyter/docker-stacks.svg?branch=master)](https://travis-ci.org/jupyter/docker-stacks)
-[![Join the chat at https://gitter.im/jupyter/jupyter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jupyter/jupyter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# Jupyter Docker Stacks
 
-Opinionated stacks of ready-to-run Jupyter applications in Docker.
+Jupyter Docker Stacks are a set of ready-to-run Docker images containing Jupyter applications and interactive computing tools.
 
 ## Quick Start
 
-If you're familiar with Docker, have it configured, and know exactly what you'd like to run, this one-liner should work in most cases:
+The two examples below may help you get started if you [have Docker installed](https://docs.docker.com/install/) know [which Docker image](http://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html) you want to use, and want to launch a single Jupyter Notebook server in a container.
 
-```
-docker run -d -P jupyter/<your desired stack>
-```
+The [User Guide on ReadTheDocs](http://jupyter-docker-stacks.readthedocs.io/) describes additional uses and features in detail.
 
-## Getting Started
+**Example 1:** This command pulls the `jupyter/scipy-notebook` image tagged `2c80cf3537ca` from Docker Hub if it is not already present on the local host. It then starts a container running a Jupyter Notebook server and exposes the server on host port 8888. The server logs appear in the terminal. Visiting `http://<hostname>:8888/?token=<token>` in a browser loads the Jupyter Notebook dashboard page, where `hostname` is the name of the computer running docker and `token` is the secret token printed in the console. The container remains intact for restart after the notebook server exits.
 
-If this is your first time using Docker or any of the Jupyter projects, do the following to get started.
+    docker run -p 8888:8888 jupyter/scipy-notebook:2c80cf3537ca
 
-1. [Install Docker](https://docs.docker.com/installation/) on your host of choice.
-2. Open the README in one of the folders in this git repository.
-3. Follow the README for that stack.
+**Example 2:** This command pulls the `jupyter/datascience-notebook` image tagged `3772fffc4aa4` from Docker Hub if it is not already present on the local host. It then starts an *ephemeral* container running a Jupyter Notebook server and exposes the server on host port 10000. The command mounts the current working directory on the host as `/home/jovyan/work` in the container. The server logs appear in the terminal. Visiting `http://<hostname>:10000/?token=<token>` in a browser loads JupyterLab, where `hostname` is the name of the computer running docker and `token` is the secret token printed in the console. Docker destroys the container after notebook server exit, but any files written to `~/work` in the container remain intact on the host.
 
-## Visual Overview
+    docker run --rm -p 10000:8888 -e JUPYTER_ENABLE_LAB=yes -v "$PWD":/home/jovyan/work jupyter/datascience-notebook:3772fffc4aa4
 
-Here's a diagram of the `FROM` relationships between all of the images defined in this project:
+## Contributing
 
-[![Image inheritance diagram](internal/inherit-diagram.png)](http://interactive.blockdiag.com/?compression=deflate&src=eJyFzbEOgkAMgOGdp7iwsxsJRjZ3R2NMjyumcrTkrsag8d3l3I6F9e_X1nrpBkdwN5_CGAmErKAkbBozSdAApPUycdjD0-utF9ZIb1zGu9Rbc_Fg0TelQ0vA-wfGSHg8n9ryWhd_UR2MhYgVi6IVGdJeFpIYiWkEn6F1Sy52NM2Zyksyihwl9F5eG9CBwlKRO9x8HDZuTXOcIAyZWrfkwPtqLb8_jh2GrQ)
+Please see the [Contributor Guide on ReadTheDocs](http://jupyter-docker-stacks.readthedocs.io/) for information about how to contribute package updates, recipes, features, tests, and community maintained stacks.
 
-## Stacks, Tags, Versioning, and Progress
+## Alternatives
 
-Starting with [git commit SHA 9bd33dcc8688](https://github.com/jupyter/docker-stacks/tree/9bd33dcc8688):
+* [jupyter/repo2docker](https://github.com/jupyter/repo2docker) - Turn git repositories into Jupyter-enabled Docker Images
+* [openshift/source-to-image](https://github.com/openshift/source-to-image) - A tool for building/building artifacts from source and injecting into docker images
+* [jupyter-on-openshift/jupyter-notebooks](https://github.com/jupyter-on-openshift/jupyter-notebooks) - OpenShift compatible S2I builder for basic notebook images
 
-* Nearly every folder here on GitHub has an equivalent `jupyter/<stack name>` on Docker Hub (e.g., all-spark-notebook &rarr; jupyter/all-spark-notebook).
-* The `latest` tag in each Docker Hub repository tracks the `master` branch `HEAD` reference on GitHub.
-* Any 12-character image tag on Docker Hub refers to a git commit SHA here on GitHub. See the [Docker build history wiki page](https://github.com/jupyter/docker-stacks/wiki/Docker-build-history) for a table of build details.
-* Stack contents (e.g., new library versions) will be updated upon request via PRs against this project.
-* Users looking to remain on older builds should refer to specific git SHA tagged images in their work, not `latest`.
-* For legacy reasons, there are two additional tags named `3.2` and `4.0` on Docker Hub which point to images prior to our versioning scheme switch.
+## Resources
 
-## Other Tips and Known Issues
-
-* `tini -- start-notebook.sh` is the default Docker entrypoint-plus-command in every notebook stack. If you plan to modify it in any way, be sure to check the *Notebook Options* section of your stack's README to understand the consequences.
-* Every notebook stack is compatible with [JupyterHub](https://jupyterhub.readthedocs.io) 0.5 or higher.  When running with JupyterHub, you must override the Docker run command to point to the [start-singleuser.sh](base-notebook/start-singleuser.sh) script, which starts a single-user instance of the Notebook server.  See each stack's README for instructions on running with JupyterHub.
-* Check the [Docker recipes wiki page](https://github.com/jupyter/docker-stacks/wiki/Docker-Recipes) attached to this project for information about extending and deploying the Docker images defined here. Add to the wiki if you have relevant information.
-* The pyspark-notebook and all-spark-notebook stacks will fail to submit Spark jobs to a Mesos cluster when run on Mac OSX due to https://github.com/docker/for-mac/issues/68.
-
-## Maintainer Workflow
-
-**For PRs that impact the definition of one or more stacks, do the following:**
-
-1. Make sure Travis is green.
-2. Merge the PR.
-3. `ssh -i ~/.ssh/your-github-key build@docker-stacks.cloudet.xyz`
-4. Run these commands on that VM.
-
-```
-# join the shared tmux session
-tmux a
-cd docker-stacks
-# make sure we're always on clean master from github
-git fetch origin
-git reset --hard origin/master
-# retry on failure up to 10 times with a (60 * iteration)
-# second delay in-between
-make retry/release-all
-```
-
-When `make retry/release-all` successfully pushes the last of its images to Docker Hub (currently `jupyter/all-spark-notebook`), Docker Hub invokes [the webhook](https://github.com/jupyter/docker-stacks/blob/master/internal/docker-stacks-webhook/) which updates the [Docker build history](https://github.com/jupyter/docker-stacks/wiki/Docker-build-history) wiki page.
-
-**When there's a security fix in the Debian base image, do the following in place of the last command:**
-
-Update the `debian:jessie` SHA in the most-base images (e.g., base-notebook). Submit it as a regular PR and go through the build process.
-
-This will take time as the entire set of stacks will rebuild.
-
-**When there's a new stack, do the following before trying to `make retry/release-all`:**
-
-1. Create a new repo in the `jupyter` org on Docker Hub named after the stack folder in the git repo.
-2. Grant the `stacks` team permission to write to the repo.
-3. Copy/paste the short and long descriptions from one of the other docker-stacks repos on Docker Hub. Modify the appropriate values.
-
-**When there's a new maintainer, do the following:**
-
-1. Add the GitHub user to the Jupyter org, *Docker image maintainers* team.
-2. Get the GitHub user's public key from https://github.com/<USERNAME>.keys.
-3. `ssh -i ~/.ssh/your-github-key build@docker-stacks.cloudet.xyz`
-4. Add the user's public key to `~/.ssh/authorized_keys` with his/her GitHub username as the comment after the key.
+* [Documentation on ReadTheDocs](http://jupyter-docker-stacks.readthedocs.io/)
+* [Issue Tracker on GitHub](https://github.com/jupyter/docker-stacks)
+* [Jupyter Google Group](https://groups.google.com/forum/#!forum/jupyter)
+* [Jupyter Website](https://jupyter.org)
